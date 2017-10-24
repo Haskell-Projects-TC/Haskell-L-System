@@ -31,26 +31,30 @@ type ColouredLine
 
 -- |Returns the rotation angle for the given system.
 angle :: System -> Float
-angle = error "TODO: implement angle"
+angle (angle, _, _) 
+  = angle
 
 -- |Returns the base string for the given system.
 base :: System -> String
-base = error "TODO: implement base"
+base (_, string, _)
+  = string
 
 -- |Returns the set of rules for the given system.
 rules :: System -> Rules
-rules = error "TODO: implement rules"
-
+rules (_, _, rules)
+  = rules
 
 -- |Look up a character in the given set of rules.
 --
 --  Pre: the character exists in the set of rules.
 lookupChar :: Char -> Rules -> String
-lookupChar = error "TODO: implement lookupChar"
+lookupChar chr rules 
+  = concat [x | (chr', x)  <- rules, chr' == chr ]
 
 -- |Expand a command once using the given set of rules.
+-- can use flip lookupChar isntead of ``
 expandOne :: Rules -> String -> String
-expandOne = error "TODO: implement expandOne"
+expandOne rules str = concat (map (`lookupChar` rules) str)   
 
 -- |Expand a command `n' times using the given set of rules.
 expand :: Rules -> String -> Int -> String

@@ -45,6 +45,8 @@ rules (_, _, rules)
   = rules
 
 -- |Look up a character in the given set of rules.
+-- could be done using higher order functions. chose to use list 
+-- comprehension in this case for some diversity.
 --
 --  Pre: the character exists in the set of rules.
 lookupChar :: Char -> Rules -> String
@@ -54,11 +56,13 @@ lookupChar chr rules
 -- |Expand a command once using the given set of rules.
 -- can use flip lookupChar isntead of ``
 expandOne :: Rules -> String -> String
-expandOne rules str = concat (map (`lookupChar` rules) str)   
+expandOne rules str = concat (map (flip lookupChar rules) str)   
 
 -- |Expand a command `n' times using the given set of rules.
 expand :: Rules -> String -> Int -> String
-expand = error "TODO: implement expand"
+expand rules str n 
+  | n == 0    = str
+  | otherwise = (expandOne rules (expand rules str (n - 1)))
 
 -- |Move a turtle.
 --
@@ -66,21 +70,42 @@ expand = error "TODO: implement expand"
 --  * 'L' rotates left according to the given angle.
 --  * 'R' rotates right according to the given angle.
 move :: Char -> TurtleState -> Float -> TurtleState
-move = error "TODO: implement move"
+move chr turtlestate theta'
+  | chr == 'L' = ((x, y), theta + theta')
+  | chr == 'R' = ((x, y), theta - theta')
+  | chr == 'F' = (((x + cos (thetarad), (y + sin (thetarad))), theta)
+  where
+    ((x, y), theta)  = turtlestate
+    theta * pi / 180 = thetarad
+  
 
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
 --  Method 1
 trace1 :: String -> Float -> Colour -> [ColouredLine]
-trace1 = error "TODO: implement trace1"
+trace1 (chr : chrs) theta colour
+  = error "TODO: implement trace1"
+    where
+      trace1'
+        |  
+        |
 
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
 --  Method 2
 trace2 :: String -> Float -> Colour -> [ColouredLine]
-trace2 = error "TODO: implement trace2"
-
-
+trace2 (chr : chrs) theta colour
+  = [((x,y), (x',y'), colour)]
+  where
+    (top : stack) = ((0, 0), 90) : []
+    trace2' :: String -> Stack -> 
+    trace2' (chr : chrs) (top : stack)  
+      | chr == '[' = newTS : (top : stack) 
+      | chr == ']' = stack
+      | otherwise  = 
+        where
+          newTS@((x', y'), theta') = move chr top theta  
+      
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 --  Some test systems.

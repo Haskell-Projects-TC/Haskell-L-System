@@ -73,38 +73,54 @@ move :: Char -> TurtleState -> Float -> TurtleState
 move chr turtlestate theta'
   | chr == 'L' = ((x, y), theta + theta')
   | chr == 'R' = ((x, y), theta - theta')
-  | chr == 'F' = (((x + cos (thetarad), (y + sin (thetarad))), theta)
+  | chr == 'F' = (((x + cos (thetarad), (y + sin (thetarad))), theta))
   where
     ((x, y), theta)  = turtlestate
-    theta * pi / 180 = thetarad
+    thetarad         = theta * (pi / 180)
   
 
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
 --  Method 1
 trace1 :: String -> Float -> Colour -> [ColouredLine]
-trace1 (chr : chrs) theta colour
-  = error "TODO: implement trace1"
-    where
-      trace1'
-        |  
-        |
-
+trace1 commands theta colour
+  = fst (trace1' commands initialTS)
+  where
+    initialTS = ((0, 0), 90)
+    trace1' :: String -> TurtleState -> ([ColouredLine], String)
+    trace1' "" _
+      = ([], "")
+    trace1' (chr : chrs) turtlestate@(vector, _) 
+      | chr == '[' = (cLine ++ cLine', str')
+      | chr == ']' = ([], chrs)
+      | chr == 'F' = ((vector, vector', colour) : cLine'', str'')
+      | otherwise  = trace1' chrs newTS
+      where
+        newTS@(vector', theta')    = move chr turtlestate theta
+        (cLine, str)               = trace1' chrs turtlestate
+        (cLine', str')             = trace1' str turtlestate
+        (cLine'', str'')           = trace1' chrs newTS
+        
+ 
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
 --  Method 2
 trace2 :: String -> Float -> Colour -> [ColouredLine]
-trace2 (chr : chrs) theta colour
-  = [((x,y), (x',y'), colour)]
+trace2 commands theta colour
+  = trace2' commands initialTS
   where
-    (top : stack) = ((0, 0), 90) : []
-    trace2' :: String -> Stack -> 
-    trace2' (chr : chrs) (top : stack)  
-      | chr == '[' = newTS : (top : stack) 
-      | chr == ']' = stack
-      | otherwise  = 
+    initialTS@(top : stack) = ((0, 0), 90) : []
+    trace2' :: String -> Stack -> [ColouredLine]
+    trace2' "" _
+      = []  
+    trace2' (chr : chrs) tss@(top : stack)  
+      | chr == '[' = trace2' chrs (top : tss)
+      | chr == ']' = trace2' chrs stack
+      | chr == 'F' = ((x, y), (x', y'), colour) : trace2' chrs (newTS : stack)
+      | otherwise  = trace2' chrs (newTS : stack)
         where
-          newTS@((x', y'), theta') = move chr top theta  
+          newTS@((x', y'), _) = move chr top theta
+          ((x, y), _)         = top
       
 --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 

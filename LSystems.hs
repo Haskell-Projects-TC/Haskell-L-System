@@ -100,7 +100,26 @@ trace1 commands theta colour
         (cLine, str)               = trace1' chrs turtlestate
         (cLine', str')             = trace1' str turtlestate
         (cLine'', str'')           = trace1' chrs newTS
+
         
+trace1cust:: String -> Float -> Colour -> [ColouredLine]
+trace1cust commands theta colour
+  = fst (trace1' commands initialTS colour)
+  where
+    initialTS = ((0, 0), 90)
+    trace1' :: String -> TurtleState -> Colour -> ([ColouredLine], String)
+    trace1' "" _  _
+      = ([], "")
+    trace1' (chr : chrs) turtlestate@(vector, _) colour@(r, g, b)
+      | chr == '[' = (cLine ++ cLine', str')
+      | chr == ']' = ([], chrs)
+      | chr == 'F' = ((vector, vector', colour) : cLine'', str'')
+      | otherwise  = trace1' chrs newTS colour
+      where
+        newTS@(vector', theta')    = move chr turtlestate theta
+        (cLine, str)               = trace1' chrs turtlestate (b, r, g)
+        (cLine', str')             = trace1' str turtlestate (b, r, g)
+        (cLine'', str'')           = trace1' chrs newTS colour
  
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
@@ -228,7 +247,7 @@ lSystem (_, base, rs) n
 
 drawLSystem1 :: System -> Int -> Colour -> IO ()
 drawLSystem1 system n colour
-  = drawLines (trace1 (lSystem system n) (angle system) colour)
+  = drawLines (trace1cust (lSystem system n) (angle system) colour)
 
 drawLSystem2 :: System -> Int -> Colour -> IO ()
 drawLSystem2 system n colour

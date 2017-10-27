@@ -54,7 +54,8 @@ lookupChar chr rules
   = concat [x | (chr', x)  <- rules, chr' == chr ]
 
 -- |Expand a command once using the given set of rules.
--- can use flip lookupChar isntead of ``
+-- can also use `` to make lookUp char infix and use partial application that
+-- way but it seemed more elegant to use flip.
 expandOne :: Rules -> String -> String
 expandOne rules str = concat (map (flip lookupChar rules) str)   
 
@@ -69,6 +70,8 @@ expand rules str n
 --  * 'F' moves distance 1 in the current direction.
 --  * 'L' rotates left according to the given angle.
 --  * 'R' rotates right according to the given angle.
+-- theta must be converted into radians for the last guard since cos and sin 
+-- use this unit
 move :: Char -> TurtleState -> Float -> TurtleState
 move chr turtlestate theta'
   | chr == 'L' = ((x, y), theta + theta')
@@ -78,6 +81,8 @@ move chr turtlestate theta'
     ((x, y), theta)  = turtlestate
     thetarad         = theta * (pi / 180)
   
+-- In both trace functions it was extremely important to pattern match
+-- correctly since it is done a lot in the where clauses.
 
 -- |Trace lines drawn by a turtle using the given colour, following the
 --  commands in the string and assuming the given initial angle of rotation.
@@ -101,7 +106,9 @@ trace1 commands theta colour
         (cLine', str')             = trace1' str turtlestate
         (cLine'', str'')           = trace1' chrs newTS
 
-        
+-- This function operates exactly the same as trace but is extended in the way
+-- that colour is pattern matched with a triple of r,g and b to return images of
+-- multiple colours, the same can be done for trace 2 
 trace1cust:: String -> Float -> Colour -> [ColouredLine]
 trace1cust commands theta colour
   = fst (trace1' commands initialTS colour)
